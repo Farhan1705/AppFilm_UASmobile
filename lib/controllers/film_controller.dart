@@ -9,6 +9,21 @@ class FilmController extends GetxController {
   var filmList = <Film>[].obs;
   var isLoading = false.obs;
   var isDeleting = false.obs;
+  var searchQuery = ''.obs;
+  var selectedKategori = 'Semua'.obs;
+
+  List<Film> get filteredFilms {
+    return filmList.where((film) {
+      final matchSearch = film.judul.toLowerCase().contains(searchQuery.value.toLowerCase());
+      final matchKategori = selectedKategori.value == 'Semua' || film.kategori == selectedKategori.value;
+      return matchSearch && matchKategori;
+    }).toList();
+  }
+
+  List<String> get kategoriList {
+    final list = filmList.map((f) => f.kategori).toSet().toList();
+    return ['Semua', ...list];
+  }
 
   // READ - Ambil semua film dari MockAPI
   Future<void> fetchFilms() async {

@@ -19,15 +19,17 @@ class HomeView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Movie List'),
         actions: [
-          Obx(() => Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                authController.isAdmin ? '[Admin]' : '[User]',
-                style: TextStyle(fontSize: 12),
+          Obx(
+            () => Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  authController.isAdmin ? '[Admin]' : '[User]',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
             ),
-          )),
+          ),
           IconButton(
             onPressed: () => authController.logout(),
             icon: Icon(Icons.logout),
@@ -40,39 +42,90 @@ class HomeView extends StatelessWidget {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (filmController.filmList.isEmpty) {
-          return Center(child: Text('Belum ada film.'));
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => filmController.fetchFilms(),
-          child: ListView.builder(
-            itemCount: filmController.filmList.length,
-            itemBuilder: (context, index) {
-              final film = filmController.filmList[index];
-              return ListTile(
-                leading: Image.network(
-                  film.gambarPoster,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Icon(Icons.movie),
+        return Column(
+          children: [
+            // Search Bar
+            Padding(
+              padding: EdgeInsets.all(12),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Cari film...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
                 ),
-                title: Text(film.judul),
-                subtitle: Text('${film.kategori} • ${film.skorRating}/100'),
-                onTap: () => Get.to(() => DetailView(film: film)),
-              );
-            },
-          ),
+                onChanged: (val) => filmController.searchQuery.value = val,
+              ),
+            ),
+
+            // Filter Chip
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                itemCount: filmController.kategoriList.length,
+                itemBuilder: (context, index) {
+                  final kat = filmController.kategoriList[index];
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: Obx(
+                      () => ChoiceChip(
+                        label: Text(kat),
+                        selected: filmController.selectedKategori.value == kat,
+                        onSelected: (_) =>
+                            filmController.selectedKategori.value = kat,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(height: 8),
+
+            // Film List
+            Expanded(
+              child: filmController.filteredFilms.isEmpty
+                  ? Center(child: Text('Film tidak ditemukan.'))
+                  : RefreshIndicator(
+                      onRefresh: () => filmController.fetchFilms(),
+                      child: ListView.builder(
+                        itemCount: filmController.filteredFilms.length,
+                        itemBuilder: (context, index) {
+                          final film = filmController.filteredFilms[index];
+                          return ListTile(
+                            leading: Image.network(
+                              film.gambarPoster,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(Icons.movie),
+                            ),
+                            title: Text(film.judul),
+                            subtitle: Text(
+                              '${film.kategori} • ${film.skorRating}/100',
+                            ),
+                            onTap: () => Get.to(() => DetailView(film: film)),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
         );
       }),
-      floatingActionButton: Obx(() => authController.isAdmin
-          ? FloatingActionButton(
-              onPressed: () => Get.to(() => AddEditView()),
-              child: Icon(Icons.add),
-              tooltip: 'Tambah Film',
-            )
-          : SizedBox.shrink()),
+      floatingActionButton: Obx(
+        () => authController.isAdmin
+            ? FloatingActionButton(
+                onPressed: () => Get.to(() => AddEditView()),
+                child: Icon(Icons.add),
+                tooltip: 'Tambah Film',
+              )
+            : SizedBox.shrink(),
+      ),
     );
   }
 }
