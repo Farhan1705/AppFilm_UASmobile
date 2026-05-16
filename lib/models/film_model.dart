@@ -28,7 +28,9 @@ class Film {
       ringkasan: json['ringkasan'] ?? '',
       gambarPoster: json['gambar_poster'] ?? '',
       gambarSampul: json['gambar_sampul'] ?? '',
-      tanggalRilis: json['tanggal_rilis'] ?? 0,
+      tanggalRilis: json['tanggal_rilis'] is String
+          ? int.tryParse(json['tanggal_rilis']) ?? 0
+          : json['tanggal_rilis'] ?? 0,
       skorRating: json['skor_rating'] is String
           ? int.tryParse(json['skor_rating']) ?? 0
           : json['skor_rating'] ?? 0,
