@@ -106,15 +106,53 @@ class HomeView extends StatelessWidget {
                         itemCount: filmController.filteredFilms.length,
                         itemBuilder: (context, index) {
                           final film = filmController.filteredFilms[index];
+                          final isComingSoon = DateTime.fromMillisecondsSinceEpoch(film.tanggalRilis * 1000).isAfter(DateTime.now());
                           return ListTile(
-                            leading: Image.network(
-                              film.gambarPoster,
-                              width: 48,
-                              height: 48,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(Icons.movie),
+                            leading: Stack(
+                              children: [
+                                Image.network(
+                                  film.gambarPoster,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Icon(Icons.movie),
+                                ),
+                                if (isComingSoon)
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      color: Colors.orange.withOpacity(0.85),
+                                      padding: EdgeInsets.symmetric(vertical: 1),
+                                      child: Text(
+                                        'Soon',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                            title: Text(film.judul),
+                            title: Row(
+                              children: [
+                                Flexible(child: Text(film.judul)),
+                                if (isComingSoon) ...[  
+                                  SizedBox(width: 6),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'Coming Soon',
+                                      style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                             subtitle: Text(
                               '${film.kategori} • ${film.skorRating}/100',
                             ),

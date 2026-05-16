@@ -16,6 +16,7 @@ class AddEditView extends StatelessWidget {
   final TextEditingController kategoriCtrl = TextEditingController();
   final TextEditingController trailerCtrl = TextEditingController();
   final TextEditingController tanggalCtrl = TextEditingController();
+  int _selectedTimestamp = 0;
 
   void _initFields() {
     if (film != null) {
@@ -26,7 +27,9 @@ class AddEditView extends StatelessWidget {
       ratingCtrl.text = film!.skorRating.toString();
       kategoriCtrl.text = film!.kategori;
       trailerCtrl.text = film!.urlTrailer;
-      tanggalCtrl.text = film!.tanggalRilis.toString();
+      _selectedTimestamp = film!.tanggalRilis;
+      final dt = DateTime.fromMillisecondsSinceEpoch(film!.tanggalRilis * 1000);
+      tanggalCtrl.text = '${dt.year}-${dt.month.toString().padLeft(2,'0')}-${dt.day.toString().padLeft(2,'0')}';
     }
   }
 
@@ -51,7 +54,32 @@ class AddEditView extends StatelessWidget {
               _field(ratingCtrl, 'Rating (0-100)', type: TextInputType.number),
               _field(kategoriCtrl, 'Kategori'),
               _field(trailerCtrl, 'URL Trailer'),
-              _field(tanggalCtrl, 'Timestamp Rilis', type: TextInputType.number),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: TextFormField(
+                  controller: tanggalCtrl,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Tanggal Rilis',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedTimestamp > 0
+                          ? DateTime.fromMillisecondsSinceEpoch(_selectedTimestamp * 1000)
+                          : DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      _selectedTimestamp = picked.millisecondsSinceEpoch ~/ 1000;
+                      tanggalCtrl.text = '${picked.year}-${picked.month.toString().padLeft(2,'0')}-${picked.day.toString().padLeft(2,'0')}';
+                    }
+                  },
+                ),
+              ),
               SizedBox(height: 20),
               Obx(() => ElevatedButton(
                 onPressed: controller.isLoading.value
@@ -67,7 +95,7 @@ class AddEditView extends StatelessWidget {
                             skorRating: int.tryParse(ratingCtrl.text) ?? 0,
                             kategori: kategoriCtrl.text,
                             urlTrailer: trailerCtrl.text,
-                            tanggalRilis: int.tryParse(tanggalCtrl.text) ?? 0,
+                            tanggalRilis: _selectedTimestamp,
                           );
                           if (isEdit) {
                             controller.updateFilm(film!.id!, newFilm);

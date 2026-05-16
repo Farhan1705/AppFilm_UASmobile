@@ -77,7 +77,22 @@ class DetailView extends StatelessWidget {
             SizedBox(height: 16),
 
             // Info dasar
-            Text(film.judul, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Flexible(child: Text(film.judul, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                if (DateTime.fromMillisecondsSinceEpoch(film.tanggalRilis * 1000).isAfter(DateTime.now())) ...[  
+                  SizedBox(width: 8),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text('Coming Soon', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ],
+            ),
             SizedBox(height: 4),
             Text('Kategori: ${film.kategori}'),
             Text('Rating: ${film.skorRating}/100'),
