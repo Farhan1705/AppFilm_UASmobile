@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'controllers/auth_controller.dart';
+import 'controllers/favorite_controller.dart';  
 import 'views/login_view.dart';
 import 'views/register_view.dart';
 import 'views/home_view.dart';
+import 'views/favorite_view.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +16,7 @@ void main() async {
   );
   // Inisialisasi AuthController secara global sebelum app jalan
   Get.put(AuthController());
+  Get.put(FavoriteController()); 
   runApp(MyApp());
 }
 
@@ -32,6 +35,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/login', page: () => LoginView()),
         GetPage(name: '/register', page: () => RegisterView()),
         GetPage(name: '/home', page: () => HomeView()),
+        GetPage(name: '/favorite', page: () => FavoriteView()),
       ],
       debugShowCheckedModeBanner: false,
     );
