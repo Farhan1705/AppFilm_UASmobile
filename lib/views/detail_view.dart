@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../controllers/favorite_controller.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/film_controller.dart';
 import '../models/film_model.dart';
@@ -12,6 +13,7 @@ class DetailView extends StatelessWidget {
 
   final FilmController controller = Get.find();
   final AuthController authController = Get.find();
+  final FavoriteController favController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +21,19 @@ class DetailView extends StatelessWidget {
       appBar: AppBar(
         title: Text(film.judul),
         actions: [
+          Obx(
+            () => IconButton(
+              icon: Icon(
+                favController.isFavorite(film.id ?? '')
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: favController.isFavorite(film.id ?? '')
+                    ? Colors.red
+                    : null,
+              ),
+              onPressed: () => favController.toggleFavorite(film),
+            ),
+          ),
           Obx(() => authController.isAdmin
               ? Row(
                   mainAxisSize: MainAxisSize.min,

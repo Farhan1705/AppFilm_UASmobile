@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/favorite_controller.dart'; 
 import '../controllers/film_controller.dart';
 import 'add_edit_view.dart';
 import 'detail_view.dart';
+import 'favorite_view.dart';
 
 class HomeView extends StatelessWidget {
   final FilmController filmController = Get.put(FilmController());
   final AuthController authController = Get.find();
+  final FavoriteController favController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +33,13 @@ class HomeView extends StatelessWidget {
               ),
             ),
           ),
+
+          IconButton(
+            onPressed: () => Get.to(() => FavoriteView()), // ← TAMBAH
+            icon: Icon(Icons.favorite),
+            tooltip: 'Favorit',
+          ),
+
           IconButton(
             onPressed: () => authController.logout(),
             icon: Icon(Icons.logout),
@@ -108,6 +118,22 @@ class HomeView extends StatelessWidget {
                             subtitle: Text(
                               '${film.kategori} • ${film.skorRating}/100',
                             ),
+                            
+                            trailing: Obx(
+                              () => IconButton(
+                                icon: Icon(
+                                  favController.isFavorite(film.id ?? '')
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: favController.isFavorite(film.id ?? '')
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                                onPressed: () =>
+                                    favController.toggleFavorite(film),
+                              ),
+                            ),
+
                             onTap: () => Get.to(() => DetailView(film: film)),
                           );
                         },
